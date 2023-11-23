@@ -11,8 +11,6 @@ jobs:
 
     env:
       AWS_DEFAULT_REGION: ap-northeast-2
-      ECR_REGISTRY: 809093418282.dkr.ecr.ap-northeast-2.amazonaws.com
-      ECR_REPO: your-repository-name
 
     steps:
     - name: Checkout repository
@@ -23,9 +21,18 @@ jobs:
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile ecr-user
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile ecr-user
         aws configure set region ${AWS_DEFAULT_REGION} --profile ecr-user
-        aws ecr get-login-password --region ${AWS_DEFAULT_REGION} --profile ecr-user | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+
+    - name: Create ECR and Login ECR
+      run: |
+        aws ecr create-repository --repository-name test1 --region ${AWS_DEFAULT_REGION}
+        repository_uri=$(echo $repository_info | jq -r '.repositories[0].repositoryUri')
+        trimmed_uri=$(echo $repository_uri | cut -d '/' -f 1)
+        repository_name=$(echo $repository_info | jq -r '.repositories[0].repositoryName')
+        aws ecr get-login-password --region ${AWS_DEFAULT_REGION} --profile ecr-user | docker login --username AWS --password-stdin $trimmed_uri
 
     - name: Build and push Docker image to ECR
+       # ecr 생성
+       # 방금 생성한 ecr 의 주소를 불러와야함
       run: |
         docker build -t ${ECR_REPO} .
         docker tag ${ECR_REPO}:latest ${ECR_REGISTRY}/${ECR_REPO}:latest
