@@ -1,0 +1,24 @@
+name: Build and Push to ECR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Login to Amazon ECR
+      run: |
+        aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 809093418282.dkr.ecr.ap-northeast-2.amazonaws.com
+
+    - name: Build and push Docker image to ECR
+      run: |
+        docker build -t my-custom-image -f path/to/Dockerfile .
+        docker tag my-custom-image 809093418282.dkr.ecr.ap-northeast-2.amazonaws.com/hellohelm:latest
+        docker push 809093418282.dkr.ecr.ap-northeast-2.amazonaws.com/hellohelm:latest
