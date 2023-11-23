@@ -12,7 +12,7 @@ jobs:
     env:
       AWS_DEFAULT_REGION: ap-northeast-2
       ECR_REGISTRY: 809093418282.dkr.ecr.ap-northeast-2.amazonaws.com
-      ECR_REPO: your-repository-name
+      ECR_REPO: 809093418282.dkr.ecr.ap-northeast-2.amazonaws.com/hello-helm
 
     steps:
     - name: Checkout repository
